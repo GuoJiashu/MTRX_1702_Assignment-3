@@ -6,8 +6,8 @@
 
 #include "bitmap.h"
 
-#define WIDTH 32
-#define HEIGHT 32
+#define MAX_WIDTH 32
+#define MAX_HEIGHT 32
 #define MINIMUM_IMAGE_BYTES 128
 
 // Function to display a template from the template file.
@@ -28,28 +28,28 @@ void displayTemplate(FILE *template_file, int template_index) {
     // Seek to the position of the specified template within the file.
     fseek(template_file, MINIMUM_IMAGE_BYTES * template_index + 1, SEEK_SET);
 
-    int bit[WIDTH * HEIGHT];
+    int bit[MAX_WIDTH * MAX_HEIGHT];
     int bit_index = 0;
     uint8_t byte;
 
     printf("Template data:\n");
 
     // Read and process the binary data of the template.
-    while (bit_index < WIDTH * HEIGHT && fread(&byte, sizeof(uint8_t), 1, template_file) == 1) {
+    while (bit_index < MAX_WIDTH * MAX_HEIGHT && fread(&byte, sizeof(uint8_t), 1, template_file) == 1) {
         for (int i = 7; i >= 0; i--) {
             bit[bit_index++] = (byte >> i) & 1;
         }
     }
 
     int line_index = 0;
-    for (int i = bit_index - WIDTH; i > -1; i++) {
-        if (line_index == WIDTH * HEIGHT) {
+    for (int i = bit_index - MAX_WIDTH; i > -1; i++) {
+        if (line_index == MAX_WIDTH * MAX_HEIGHT) {
             printf("\n");
             break;
         }
         printf("%c", bit[i] ? '1' : ' ');
-        if ((i + 1) % WIDTH == 0 && line_index != 0) {
-            i -= 2 * WIDTH;
+        if ((i + 1) % MAX_WIDTH == 0 && line_index != 0) {
+            i -= 2 * MAX_WIDTH;
             printf("\n");
         }
         line_index++;
@@ -79,7 +79,7 @@ void find_components(FILE* read_file, char* bmp_file) {
     int num_components = num_components_byte;
     fseek(read_file, 1, SEEK_SET);
 
-    int bit_all_components[num_components][WIDTH * HEIGHT];
+    int bit_all_components[num_components][MAX_WIDTH * MAX_HEIGHT];
 
     // Read and store template data for all components.
     for (int component_index = 0; component_index < num_components; component_index++) {
@@ -88,7 +88,7 @@ void find_components(FILE* read_file, char* bmp_file) {
         int indexBit = 0;
         uint8_t component_byte;
 
-        while (fread(&component_byte, 1, 1, read_file) == 1 && indexBit < WIDTH * HEIGHT) {
+        while (fread(&component_byte, 1, 1, read_file) == 1 && indexBit < MAX_WIDTH * MAX_HEIGHT) {
             for (int i = 7; i >= 0; i--) {
                 bit_all_components[component_index][indexBit] = (component_byte >> i) & 1;
                 indexBit++;
@@ -102,22 +102,22 @@ void find_components(FILE* read_file, char* bmp_file) {
     int num_found_components = 0;
 
     // Iterate through the BMP to find matching components.
-    for (int row = 0; row <= pcb_height - HEIGHT; row++) {
-        for (int col = 0; col <= pcb_width - WIDTH; col++) {
+    for (int row = 0; row <= pcb_height - MAX_HEIGHT; row++) {
+        for (int col = 0; col <= pcb_width - MAX_WIDTH; col++) {
             for (int component_index = 0; component_index < num_components; component_index++) {
                 bool Component = true;
 
-                for (int i = 0; i < HEIGHT && Component; i++) {
-                    for (int j = 0; j < WIDTH; j++) {
+                for (int i = 0; i < MAX_HEIGHT && Component; i++) {
+                    for (int j = 0; j < MAX_WIDTH; j++) {
                         int pcbRow = row + i;
                         int pcbCol = col + j;
 
                         if (pcbRow < 0 || pcbRow >= pcb_height || pcbCol < 0 || pcbCol >= pcb_width) {
-                            if (bit_all_components[component_index][i * WIDTH + j] == 1) {
+                            if (bit_all_components[component_index][i * MAX_WIDTH + j] == 1) {
                                 Component = false;
                                 break;
                             }
-                        } else if (bmp_binary[pcbRow][pcbCol] != bit_all_components[component_index][i * WIDTH + j]) {
+                        } else if (bmp_binary[pcbRow][pcbCol] != bit_all_components[component_index][i * MAX_WIDTH + j]) {
                             Component = false;
                             break;
                         }
@@ -240,7 +240,7 @@ void check_connection(FILE* read_file, char* bmp_file) {
     int num_components = num_components_byte;
     fseek(read_file, 1, SEEK_SET);
 
-    int bit_all_components[num_components][WIDTH * HEIGHT];
+    int bit_all_components[num_components][MAX_WIDTH * MAX_HEIGHT];
 
     // Read and store template data for all components.
     for (int component_index = 0; component_index < num_components; component_index++) {
@@ -249,7 +249,7 @@ void check_connection(FILE* read_file, char* bmp_file) {
         int indexBit = 0;
         uint8_t component_byte;
 
-        while (fread(&component_byte, 1, 1, read_file) == 1 && indexBit < WIDTH * HEIGHT) {
+        while (fread(&component_byte, 1, 1, read_file) == 1 && indexBit < MAX_WIDTH * MAX_HEIGHT) {
             for (int i = 7; i >= 0; i--) {
                 bit_all_components[component_index][indexBit] = (component_byte >> i) & 1;
                 indexBit++;
@@ -263,22 +263,22 @@ void check_connection(FILE* read_file, char* bmp_file) {
     int found_components = 0;
 
     // Iterate through the BMP to find matching components.
-    for (int row = 0; row <= pcb_height - HEIGHT; row++) {
-        for (int col = 0; col <= pcb_width - WIDTH; col++) {
+    for (int row = 0; row <= pcb_height - MAX_HEIGHT; row++) {
+        for (int col = 0; col <= pcb_width - MAX_WIDTH; col++) {
             for (int component_index = 0; component_index < num_components; component_index++) {
                 bool Component = true;
 
-                for (int i = 0; i < HEIGHT && Component; i++) {
-                    for (int j = 0; j < WIDTH; j++) {
+                for (int i = 0; i < MAX_HEIGHT && Component; i++) {
+                    for (int j = 0; j < MAX_WIDTH; j++) {
                         int pcbRow = row + i;
                         int pcbCol = col + j;
 
                         if (pcbRow < 0 || pcbRow >= pcb_height || pcbCol < 0 || pcbCol >= pcb_width) {
-                            if (bit_all_components[component_index][i * WIDTH + j] == 1) {
+                            if (bit_all_components[component_index][i * MAX_WIDTH + j] == 1) {
                                 Component = false;
                                 break;
                             }
-                        } else if (bmp_binary[pcbRow][pcbCol] != bit_all_components[component_index][i * WIDTH + j]) {
+                        } else if (bmp_binary[pcbRow][pcbCol] != bit_all_components[component_index][i * MAX_WIDTH + j]) {
                             Component = false;
                             break;
                         }
@@ -322,7 +322,7 @@ void check_connection(FILE* read_file, char* bmp_file) {
             // Mark other non-relevant components as temporarily disconnected.
             for (int i = 0; i < found_components; i++) {
                 if (i != component_check && i != component_connected) {
-                    border_component(bmp_binary, row_pos[i], col_pos[i], pcb_height, pcb_width, WIDTH, HEIGHT, 2);
+                    border_component(bmp_binary, row_pos[i], col_pos[i], pcb_height, pcb_width, MAX_WIDTH, MAX_HEIGHT, 2);
                 }
             }
 
@@ -332,7 +332,7 @@ void check_connection(FILE* read_file, char* bmp_file) {
             // Restore temporarily disconnected components to their original state.
             for (int i = 0; i < found_components; i++) {
                 if (i != component_check && i != component_connected) {
-                    border_component(bmp_binary, row_pos[i], col_pos[i], pcb_height, pcb_width, WIDTH, HEIGHT, 1);
+                    border_component(bmp_binary, row_pos[i], col_pos[i], pcb_height, pcb_width, MAX_WIDTH, MAX_HEIGHT, 1);
                 }
             }
 
