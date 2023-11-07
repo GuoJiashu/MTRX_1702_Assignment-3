@@ -260,7 +260,7 @@ void check_connection(FILE* read_file, char* bmp_file) {
     int found_compo_type[100];
     int row_pos[100];
     int col_pos[100];
-    int num_found_components = 0;
+    int found_components = 0;
 
     // Iterate through the BMP to find matching components.
     for (int row = 0; row <= pcb_height - HEIGHT; row++) {
@@ -286,10 +286,10 @@ void check_connection(FILE* read_file, char* bmp_file) {
                 }
 
                 if (Component) {
-                    found_compo_type[num_found_components] = component_index;
-                    row_pos[num_found_components] = row;
-                    col_pos[num_found_components] = col;
-                    num_found_components++;
+                    found_compo_type[found_components] = component_index;
+                    row_pos[found_components] = row;
+                    col_pos[found_components] = col;
+                    found_components++;
                 }
             }
         }
@@ -299,16 +299,16 @@ void check_connection(FILE* read_file, char* bmp_file) {
     create_empty_grid(pcb_height, pcb_width);
 
 // Iterate through the found components to check their connectivity.
-    for (int component_check = 0; component_check < num_found_components; component_check++) {
+    for (int component_check = 0; component_check < found_components; component_check++) {
         int start_row = row_pos[component_check];
         int start_col = col_pos[component_check];
         int num_Connect = 0;
 
         // Initialize an array to store connected components.
-        int *connection = (int *)malloc(num_found_components * sizeof(int));
+        int *connection = (int *)malloc(found_components * sizeof(int));
 
         // Iterate through other components to check for connectivity.
-        for (int component_connected = 0; component_connected < num_found_components; component_connected++) {
+        for (int component_connected = 0; component_connected < found_components; component_connected++) {
             if (component_connected == component_check) {
                 continue;
             }
@@ -320,7 +320,7 @@ void check_connection(FILE* read_file, char* bmp_file) {
             int stop_col = col_pos[component_connected];
 
             // Mark other non-relevant components as temporarily disconnected.
-            for (int i = 0; i < num_found_components; i++) {
+            for (int i = 0; i < found_components; i++) {
                 if (i != component_check && i != component_connected) {
                     border_component(bmp_binary, row_pos[i], col_pos[i], pcb_height, pcb_width, WIDTH, HEIGHT, 2);
                 }
@@ -330,7 +330,7 @@ void check_connection(FILE* read_file, char* bmp_file) {
             bool Connected = deep_research(bmp_binary, checked, start_row, start_col, stop_row, stop_col, pcb_height, pcb_width);
 
             // Restore temporarily disconnected components to their original state.
-            for (int i = 0; i < num_found_components; i++) {
+            for (int i = 0; i < found_components; i++) {
                 if (i != component_check && i != component_connected) {
                     border_component(bmp_binary, row_pos[i], col_pos[i], pcb_height, pcb_width, WIDTH, HEIGHT, 1);
                 }
