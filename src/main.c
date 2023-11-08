@@ -302,7 +302,7 @@ void check_connection(FILE* read_file, char* bmp_file) {
     for (int component_check = 0; component_check < found_components; component_check++) {
         int start_row = row_pos[component_check];
         int start_col = col_pos[component_check];
-        int num_Connect = 0;
+        int num_connect = 0;
 
         // Initialize an array to store connected components.
         int *connection = (int *)malloc(found_components * sizeof(int));
@@ -338,15 +338,15 @@ void check_connection(FILE* read_file, char* bmp_file) {
 
             // If there is a connection, record the connected component.
             if (Connected) {
-                connection[num_Connect] = component_connected;
-                num_Connect++;
+                connection[num_connect] = component_connected;
+                num_connect++;
             }
         }
 
         // Print the connectivity information for the current component.
-        if (num_Connect > 0) {
+        if (num_connect > 0) {
             printf("Component %d connected to ", component_check);
-            for (int i = 0; i < num_Connect; i++) {
+            for (int i = 0; i < num_connect; i++) {
                 printf("%d ", connection[i]);
             }
             printf("\n");
@@ -368,14 +368,15 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    char mode = argv[1][0];
     // Check the selected mode is or isn't 't', 'l', or 'c'.
-    if (strcmp(argv[1], "t") != 0 && strcmp(argv[1], "l") != 0 && strcmp(argv[1], "c") != 0) {
+    if (mode != 't' && mode != 'l' && mode != 'c') {
         printf("Invalid mode selected!\n");
         return 1;
     }
 
     char *template_filename = argv[2];
-    FILE *template_file = fopen(template_filename, "rb");
+    FILE *template_file = fopen(template_filename, "r");
 
     // Check if the template file can be opened.
     if (template_file == NULL) {
@@ -388,15 +389,15 @@ int main(int argc, char *argv[]) {
 
     if (template_file != NULL) {
         // Call functions based on the selected mode.
-        if (strcmp(argv[1], "t") == 0) {
+        if (mode == 't') {
             displayTemplate(template_file, template_index);
         }
 
-        if (strcmp(argv[1], "l") == 0) {
+        if (mode == 'l') {
             find_components(template_file, index);
         }
 
-        if (strcmp(argv[1], "c") == 0) {
+        if (mode == 'c') {
             find_components(template_file, index);
             check_connection(template_file, index);
         }
