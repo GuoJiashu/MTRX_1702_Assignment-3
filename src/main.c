@@ -257,9 +257,9 @@ void check_connection(FILE* read_file, char* bmp_file) {
         }
     }
 
-    int found_compo_type[100];
-    int row_pos[100];
-    int col_pos[100];
+    int found_compo_type[200];
+    int row_pos[200];
+    int col_pos[200];
     int found_components = 0;
 
     // Iterate through the BMP to find matching components.
